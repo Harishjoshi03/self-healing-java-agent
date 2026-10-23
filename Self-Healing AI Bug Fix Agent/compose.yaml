@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:16.4
+    environment:
+      POSTGRES_DB: healing_agent
+      POSTGRES_USER: healing_agent
+      POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-replace-with-local-password}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U healing_agent -d healing_agent"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  agent:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/healing_agent
+      SPRING_DATASOURCE_USERNAME: healing_agent
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-replace-with-local-password}
+      AGENT_API_USERNAME: ${AGENT_API_USERNAME:-agent}
+      AGENT_API_PASSWORD: ${AGENT_API_PASSWORD:-change-me-local-only}
+      AGENT_AI_MODE: ${AGENT_AI_MODE:-offline}
+      AI_PROVIDER_API_KEY: ${AI_PROVIDER_API_KEY:-}
+      AGENT_ENABLED: ${AGENT_ENABLED:-false}
+      AGENT_REPOSITORY_ID: ${AGENT_REPOSITORY_ID:-}
+      AGENT_REPOSITORY_ROOT: ${AGENT_REPOSITORY_ROOT:-}
+      AGENT_ALLOWED_BRANCHES: ${AGENT_ALLOWED_BRANCHES:-main}
+      AGENT_KILL_SWITCH: ${AGENT_KILL_SWITCH:-false}
+      SANDBOX_ENABLED: ${SANDBOX_ENABLED:-false}
+      AUTO_CREATE_PR: ${AUTO_CREATE_PR:-false}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+    ports:
+      - "${SERVER_PORT:-8080}:8080"
+
+volumes:
+  postgres-data:
