@@ -1,0 +1,9 @@
+agent:
+  security:
+    username: ${AGENT_API_USERNAME:agent}
+    password: ${AGENT_API_PASSWORD:change-me-local-only}
+
+logging:
+  level:
+    root: INFO
+    org.springframework.ai: WARN

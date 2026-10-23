@@ -1,0 +1,63 @@
+spring:
+  application:
+    name: self-healing-agent
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/healing_agent}
+    username: ${SPRING_DATASOURCE_USERNAME:healing_agent}
+    password: ${SPRING_DATASOURCE_PASSWORD:replace_me}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+  servlet:
+    multipart:
+      max-request-size: 64KB
+      max-file-size: 64KB
+  ai:
+    mode: ${AGENT_AI_MODE:offline}
+    openai:
+      api-key: ${AI_PROVIDER_API_KEY:offline-placeholder-not-used}
+
+server:
+  port: ${SERVER_PORT:8080}
+  max-http-request-header-size: 8KB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+agent:
+  security:
+    username: ${AGENT_API_USERNAME:}
+    password: ${AGENT_API_PASSWORD:}
+  workflow:
+    enabled: ${AGENT_ENABLED:false}
+  repository:
+    id: ${AGENT_REPOSITORY_ID:}
+    root: ${AGENT_REPOSITORY_ROOT:}
+    allowed-branches: ${AGENT_ALLOWED_BRANCHES:main,master}
+  sandbox:
+    enabled: ${SANDBOX_ENABLED:false}
+    timeout-seconds: ${SANDBOX_TIMEOUT_SECONDS:300}
+    image: ${SANDBOX_IMAGE:maven:3.9.9-eclipse-temurin-21}
+    dependency-cache: ${SANDBOX_DEPENDENCY_CACHE:${user.home}/.m2/repository}
+    container-user: ${SANDBOX_CONTAINER_USER:1000:1000}
+  github:
+    enabled: ${AUTO_CREATE_PR:false}
+    token: ${GITHUB_TOKEN:}
+  max-patch-attempts: ${MAX_PATCH_ATTEMPTS:2}
+  kill-switch: ${AGENT_KILL_SWITCH:false}
